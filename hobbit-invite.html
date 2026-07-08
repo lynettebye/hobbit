@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>A Long-Expected Party</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --glow: #7CFFCB;
+    --glow-dim: #3fae8c;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #05060a;
+    overflow: hidden;
+    font-family: 'EB Garamond', serif;
+  }
+  .night-sky {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 20%, #12182b 0%, #05060a 55%, #020204 100%);
+  }
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #cfd8ff;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: twinkle 4s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.9; }
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scene {
+    position: relative;
+    width: min(76vw, 340px);
+    aspect-ratio: 1;
+  }
+
+  .orbit-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 168%;
+    height: 168%;
+    transform: translate(-50%, -50%);
+    border: 1px dashed rgba(200, 210, 235, 0.10);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .moon {
+    position: absolute;
+    width: 34px;
+    height: 34px;
+    margin-left: -17px;
+    margin-top: -17px;
+    border-radius: 50%;
+    background: #e8e4d0;
+    box-shadow: 0 0 22px 6px rgba(232,228,208,0.35);
+    cursor: grab;
+    touch-action: none;
+    transition: box-shadow 0.4s ease, background 0.4s ease;
+    z-index: 5;
+  }
+  .moon:active { cursor: grabbing; }
+  .moon.active {
+    background: #fff8e0;
+    box-shadow: 0 0 44px 16px rgba(255, 248, 224, 0.65);
+  }
+  .moon.snapped {
+    transition: left 0.15s ease, top 0.15s ease;
+    cursor: default;
+  }
+
+  .door-wrap {
+    position: absolute;
+    inset: 0;
+    filter: drop-shadow(0 18px 40px rgba(0,0,0,0.65));
+  }
+
+  .archway {
+    position: absolute;
+    inset: -6%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #5c5548 0%, #443f36 55%, #38342c 100%);
+    z-index: 0;
+  }
+
+  .door {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.05), transparent 40%),
+      linear-gradient(180deg, #3f6b3a 0%, #345a30 40%, #294a26 100%);
+    border: 10px solid #6b4a2e;
+    box-shadow:
+      inset 0 0 0 4px rgba(0,0,0,0.35),
+      inset 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .door::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(0,0,0,0.12) 0px,
+      rgba(0,0,0,0.12) 2px,
+      transparent 2px,
+      transparent 34px
+    );
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+
+  .knob {
+    display: block;
+    position: absolute;
+    left: 88%;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f2d98a, #b8860b 70%, #7a5c0a 100%);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    pointer-events: none;
+  }
+  .knob.enabled {
+    pointer-events: auto;
+  }
+
+  .runes {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20%;
+    z-index: 1;
+  }
+  .runes-text {
+    font-family: 'MedievalSharp', serif;
+    color: var(--glow);
+    text-align: center;
+    line-height: 1.5;
+    text-shadow:
+      0 0 6px var(--glow),
+      0 0 16px var(--glow),
+      0 0 34px var(--glow-dim);
+    font-size: clamp(11px, 3.2vw, 16px);
+  }
+  .runes-text .big {
+    display: block;
+    font-size: 1.5em;
+    margin-bottom: 0.3em;
+  }
+  .runes-text .small {
+    display: block;
+    margin-top: 0.5em;
+    color: #bfffe8;
+    opacity: 0.9;
+  }
+
+  .surface {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: 50%;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.05), transparent 40%),
+      linear-gradient(180deg, #3f6b3a 0%, #345a30 40%, #294a26 100%);
+    -webkit-mask-image: radial-gradient(circle at var(--x, 50%) var(--y, -20%), transparent 0px, transparent 46px, black 78px);
+    mask-image: radial-gradient(circle at var(--x, 50%) var(--y, -20%), transparent 0px, transparent 46px, black 78px);
+  }
+  .surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      rgba(0,0,0,0.12) 0px,
+      rgba(0,0,0,0.12) 2px,
+      transparent 2px,
+      transparent 34px
+    );
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+</style>
+</head>
+<body>
+
+<div class="night-sky" id="sky"></div>
+
+<div class="stage">
+  <div class="scene" id="scene">
+    <div class="orbit-ring"></div>
+    <div class="door-wrap" id="doorWrap">
+      <div class="archway"></div>
+      <div class="door">
+        <div class="runes">
+          <div class="runes-text">
+            I have no tongue, yet I greet every guest.<br>
+            I have no eyes, yet I watch those coming and going.<br>
+            <span class="small">Tap my brass eye, and I will let you in.</span>
+          </div>
+        </div>
+        <div class="surface" id="surface"></div>
+        <a class="knob" id="knob" href="https://partiful.com/e/hJA09KRph2G6PzvZkuTW?c=slv4-Me0" target="_blank" rel="noopener" aria-label="Enter"></a>
+      </div>
+    </div>
+    <div class="moon" id="moon"></div>
+  </div>
+</div>
+
+<script>
+  const surface = document.getElementById('surface');
+  const doorWrap = document.getElementById('doorWrap');
+  const scene = document.getElementById('scene');
+  const moon = document.getElementById('moon');
+  const sky = document.getElementById('sky');
+
+  const knob = document.getElementById('knob');
+  const activeHalfWidth = 40; // degrees either side of top counted as "above the door"
+  let isAbove = false;
+  let draggingMoon = false;
+  let moonLocked = false;
+  let revealProgress = 0;
+  let revealed = false;
+  const REVEAL_THRESHOLD = 36;
+
+  function normalize180(a) {
+    let n = a % 360;
+    if (n > 180) n -= 360;
+    if (n < -180) n += 360;
+    return n;
+  }
+
+  const SNAP_HALF_WIDTH = 16; // tighter zone that triggers the click-into-place snap
+
+  function placeMoon(clientX, clientY) {
+    const sceneRect = scene.getBoundingClientRect();
+    let x = clientX - sceneRect.left;
+    let y = clientY - sceneRect.top;
+    const cx = sceneRect.width / 2;
+    const cy = sceneRect.height / 2;
+    const radius = sceneRect.width * 0.84;
+    let angle = (Math.atan2(x - cx, -(y - cy)) * 180) / Math.PI;
+
+    const snapped = Math.abs(normalize180(angle)) < SNAP_HALF_WIDTH;
+    if (snapped) {
+      angle = 0;
+      moonLocked = true;
+    }
+    moon.classList.toggle('snapped', snapped);
+
+    const rad = (angle * Math.PI) / 180;
+    x = cx + radius * Math.sin(rad);
+    y = cy - radius * Math.cos(rad);
+    moon.style.left = x + 'px';
+    moon.style.top = y + 'px';
+
+    isAbove = Math.abs(normalize180(angle)) < activeHalfWidth;
+    moon.classList.toggle('active', isAbove);
+    if (!isAbove) {
+      surface.style.setProperty('--x', '50%');
+      surface.style.setProperty('--y', '-20%');
+    }
+  }
+
+  // start the moon somewhere off to the side, not above the door
+  placeMoon(
+    window.innerWidth / 2 + 260,
+    window.innerHeight / 2 + 140
+  );
+
+  moon.addEventListener('pointerdown', (e) => {
+    if (moonLocked) return;
+    draggingMoon = true;
+    moon.setPointerCapture(e.pointerId);
+  });
+  moon.addEventListener('pointermove', (e) => {
+    if (draggingMoon && !moonLocked) placeMoon(e.clientX, e.clientY);
+  });
+  moon.addEventListener('pointerup', () => { draggingMoon = false; });
+  moon.addEventListener('pointercancel', () => { draggingMoon = false; });
+
+  function setSpot(clientX, clientY) {
+    if (!isAbove) return;
+    const rect = doorWrap.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    const y = ((clientY - rect.top) / rect.height) * 100;
+    surface.style.setProperty('--x', x + '%');
+    surface.style.setProperty('--y', y + '%');
+
+    if (!revealed) {
+      revealProgress++;
+      if (revealProgress > REVEAL_THRESHOLD) {
+        revealed = true;
+        knob.classList.add('enabled');
+      }
+    }
+  }
+
+  doorWrap.addEventListener('pointermove', (e) => {
+    setSpot(e.clientX, e.clientY);
+  });
+  doorWrap.addEventListener('pointerleave', () => {
+    surface.style.setProperty('--x', '50%');
+    surface.style.setProperty('--y', '-20%');
+  });
+  doorWrap.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const t = e.touches[0];
+    setSpot(t.clientX, t.clientY);
+  }, { passive: false });
+
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.left = Math.random() * 100 + '%';
+    s.style.top = Math.random() * 70 + '%';
+    s.style.animationDelay = (Math.random() * 4) + 's';
+    sky.appendChild(s);
+  }
+</script>
+
+</body>
+</html>

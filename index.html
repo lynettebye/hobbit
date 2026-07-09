@@ -70,6 +70,8 @@
 
   .moon {
     position: absolute;
+    top: 78%;
+    left: 82%;
     width: 34px;
     height: 34px;
     margin-left: -17px;
@@ -263,14 +265,11 @@
 
   const SNAP_HALF_WIDTH = 16; // tighter zone that triggers the click-into-place snap
 
-  function placeMoon(clientX, clientY) {
+  function applyAngle(angle) {
     const sceneRect = scene.getBoundingClientRect();
-    let x = clientX - sceneRect.left;
-    let y = clientY - sceneRect.top;
     const cx = sceneRect.width / 2;
     const cy = sceneRect.height / 2;
     const radius = sceneRect.width * 0.84;
-    let angle = (Math.atan2(x - cx, -(y - cy)) * 180) / Math.PI;
 
     const snapped = Math.abs(normalize180(angle)) < SNAP_HALF_WIDTH;
     if (snapped) {
@@ -280,8 +279,8 @@
     moon.classList.toggle('snapped', snapped);
 
     const rad = (angle * Math.PI) / 180;
-    x = cx + radius * Math.sin(rad);
-    y = cy - radius * Math.cos(rad);
+    const x = cx + radius * Math.sin(rad);
+    const y = cy - radius * Math.cos(rad);
     moon.style.left = x + 'px';
     moon.style.top = y + 'px';
 
@@ -293,11 +292,24 @@
     }
   }
 
-  // start the moon somewhere off to the side, not above the door
-  placeMoon(
-    window.innerWidth / 2 + 260,
-    window.innerHeight / 2 + 140
-  );
+  function placeMoon(clientX, clientY) {
+    const sceneRect = scene.getBoundingClientRect();
+    const x = clientX - sceneRect.left;
+    const y = clientY - sceneRect.top;
+    const cx = sceneRect.width / 2;
+    const cy = sceneRect.height / 2;
+    const angle = (Math.atan2(x - cx, -(y - cy)) * 180) / Math.PI;
+    applyAngle(angle);
+  }
+
+  // start the moon at a fixed angle (lower-right), not above the door
+  const START_ANGLE = 150;
+  function initMoon() {
+    if (!moonLocked) applyAngle(START_ANGLE);
+  }
+  initMoon();
+  window.addEventListener('load', initMoon);
+  window.addEventListener('resize', initMoon);
 
   moon.addEventListener('pointerdown', (e) => {
     if (moonLocked) return;

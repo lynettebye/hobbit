@@ -221,7 +221,7 @@
 
 <div class="stage">
   <div class="scene" id="scene">
-    <div class="orbit-ring"></div>
+    <div class="orbit-ring" id="orbitRing"></div>
     <div class="door-wrap" id="doorWrap">
       <div class="archway"></div>
       <div class="door">
@@ -245,6 +245,7 @@
   const doorWrap = document.getElementById('doorWrap');
   const scene = document.getElementById('scene');
   const moon = document.getElementById('moon');
+  const orbitRing = document.getElementById('orbitRing');
   const sky = document.getElementById('sky');
 
   const knob = document.getElementById('knob');
@@ -269,7 +270,13 @@
     const sceneRect = scene.getBoundingClientRect();
     const cx = sceneRect.width / 2;
     const cy = sceneRect.height / 2;
-    const radius = sceneRect.width * 0.84;
+    const moonMargin = 26; // moon radius + a little breathing room
+    const maxRadiusX = window.innerWidth / 2 - moonMargin;
+    const maxRadiusY = window.innerHeight / 2 - moonMargin;
+    const radius = Math.min(sceneRect.width * 0.84, maxRadiusX, maxRadiusY);
+
+    orbitRing.style.width = radius * 2 + 'px';
+    orbitRing.style.height = radius * 2 + 'px';
 
     const snapped = Math.abs(normalize180(angle)) < SNAP_HALF_WIDTH;
     if (snapped) {
